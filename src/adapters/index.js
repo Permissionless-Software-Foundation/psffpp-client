@@ -9,17 +9,15 @@ import BCHJS from '@psf/bch-js'
 
 // Load individual adapter libraries.
 import IPFSAdapter from './ipfs/index.js'
-
 import LocalDB from './localdb/index.js'
 import LogsAPI from './logapi.js'
 import Passport from './passport.js'
 import Nodemailer from './nodemailer.js'
-
-// const { wlogger } = require('./wlogger')
 import JSONFiles from './json-files.js'
-
 import FullStackJWT from './fullstack-jwt.js'
 import config from '../../config/index.js'
+// const { wlogger } = require('./wlogger')
+import TUS from './tus-node-server.js'
 
 class Adapters {
   constructor (localConfig = {}) {
@@ -32,6 +30,7 @@ class Adapters {
     this.jsonFiles = new JSONFiles()
     this.bchjs = new BCHJS()
     this.config = config
+    this.tus = new TUS()
 
     // Get a valid JWT API key and instance bch-js.
     this.fullStackJwt = new FullStackJWT(config)
