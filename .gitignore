@@ -66,5 +66,6 @@ orbitdb
 ipfsdata
 .ipfsdata
 data/
+files/
 
 !README.md
