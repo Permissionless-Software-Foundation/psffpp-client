@@ -1,7 +1,7 @@
 {
-  "name": "ipfs-service-provider",
-  "version": "3.0.0",
-  "description": "A Koa-based combination of a REST API and IPFS JSON RPC. Boilerplate for starting new projects.",
+  "name": "p2wdb-image-upload-backend",
+  "version": "1.0.0",
+  "description": "The back end node.js server for uploading images to P2WDB IPFS pinning cluster.",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -19,10 +19,10 @@
   "author": "Chris Troutner <chris.troutner@gmail.com>",
   "license": "MIT",
   "apidoc": {
-    "title": "ipfs-service-provider",
+    "title": "p2wdb-image-upload-backend",
     "url": "localhost:5000"
   },
-  "repository": "Permissionless-Software-Foundation/ipfs-service-provider",
+  "repository": "Permissionless-Software-Foundation/p2wdb-image-upload-backend",
   "dependencies": {
     "axios": "0.27.2",
     "bcryptjs": "2.4.3",
