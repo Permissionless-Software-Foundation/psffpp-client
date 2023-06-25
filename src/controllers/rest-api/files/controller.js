@@ -3,7 +3,7 @@
 */
 
 // Global npm libraries
-import {EVENTS} from 'tus-node-server'
+import { EVENTS } from 'tus-node-server'
 import fs from 'fs'
 
 class FilesController {
