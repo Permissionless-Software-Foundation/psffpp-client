@@ -34,8 +34,8 @@ class FilesController {
         const fileName = event.file.id
 
         const metad = await this.tus.parseMetadataString(event.file.upload_metadata)
-        // console.log('metad: ', metad)
-        // console.log(metad.filename.decoded)
+        console.log('metad: ', metad)
+        console.log(metad.filename.decoded)
 
         this.fs.renameSync(
           `files/${fileName}`,

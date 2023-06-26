@@ -21,7 +21,7 @@ class TUS {
     // If user specified a path to use, use that.
     path && path !== ''
       ? (_this.filesPath = path)
-      : (_this.filesPath = './')
+      : (_this.filesPath = '/files')
   }
 
   async server () {
