@@ -67,8 +67,8 @@ EXPOSE 5010
 
 # Start the application.
 #COPY start-production.sh start-production.sh
-#CMD ["./start-production.sh"]
+CMD ["./start-production.sh"]
 
 # Dummy app for debugging
-COPY dummy-app.js dummy-app.js
-CMD ["node", "dummy-app.js"]
+#COPY dummy-app.js dummy-app.js
+#CMD ["node", "dummy-app.js"]
