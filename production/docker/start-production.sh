@@ -17,7 +17,7 @@ export COORD_NAME=ipfs-service-provider-generic
 #export CR_DOMAIN=subdomain.yourdomain.com
 
 # Debug level. 0 = minimal info. 2 = max info.
-export DEBUG_LEVEL=2
+export DEBUG_LEVEL=0
 
 # END: Optional configuration settings
 
@@ -29,7 +29,7 @@ export DBURL=mongodb://172.17.0.1:5555/ipfs-service-prod
 export PORT=5010
 
 # Production settings using external go-ipfs node.
-export SVC_ENV=production
+export SVC_ENV=prod
 export IPFS_HOST=172.17.0.1
 export IPFS_API_PORT=5001
 export IPFS_TCP_PORT=4001

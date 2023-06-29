@@ -66,5 +66,7 @@ orbitdb
 ipfsdata
 .ipfsdata
 data/
+files/
 
 !README.md
+!file-pair-mgmnt.js

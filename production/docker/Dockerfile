@@ -2,8 +2,6 @@
 #
 
 #IMAGE BUILD COMMANDS
-# ct-base-ubuntu = ubuntu 18.04 + nodejs v10 LTS
-#FROM christroutner/ct-base-ubuntu
 FROM ubuntu:20.04
 MAINTAINER Chris Troutner <chris.troutner@gmail.com>
 
@@ -46,18 +44,17 @@ RUN npm set registry http://94.130.170.209:4873/
 
 # Clone the rest.bitcoin.com repository
 WORKDIR /home/safeuser
-RUN git clone https://github.com/Permissionless-Software-Foundation/ipfs-service-provider
+RUN git clone https://github.com/Permissionless-Software-Foundation/p2wdb-image-upload-backend
 
 # Switch to the desired branch. `master` is usually stable,
 # and `stage` has the most up-to-date changes.
-WORKDIR /home/safeuser/ipfs-service-provider
+WORKDIR /home/safeuser/p2wdb-image-upload-backend
 
 # For development: switch to unstable branch
 RUN git checkout ct-unstable
 
 # Install dependencies
 #RUN mkdir .ipfsdata
-#RUN npm install -g @mapbox/node-pre-gyp
 RUN npm install
 
 # Generate the API docs
@@ -72,4 +69,6 @@ EXPOSE 5010
 #COPY start-production.sh start-production.sh
 CMD ["./start-production.sh"]
 
-#CMD ["npm", "start"]
+# Dummy app for debugging
+#COPY dummy-app.js dummy-app.js
+#CMD ["node", "dummy-app.js"]
