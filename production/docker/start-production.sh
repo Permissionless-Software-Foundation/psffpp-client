@@ -17,7 +17,7 @@ export COORD_NAME=ipfs-service-provider-generic
 #export CR_DOMAIN=subdomain.yourdomain.com
 
 # Debug level. 0 = minimal info. 2 = max info.
-export DEBUG_LEVEL=2
+export DEBUG_LEVEL=0
 
 # END: Optional configuration settings
 
