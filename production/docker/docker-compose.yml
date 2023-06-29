@@ -3,9 +3,9 @@
 version: '3.9'
 
 services:
-  mongo-ipfs-service:
+  mongo-p2wdb-upload:
     image: mongo:4.2.0
-    container_name: mongo-ipfs-service
+    container_name: mongo-p2wdb-upload
     ports:
       - '5555:27017' # <host port>:<container port>
     volumes:
@@ -13,13 +13,13 @@ services:
     command: mongod --logpath=/dev/null # -- quiet
     restart: always
 
-  ipfs:
+  ipfs-p2wdb-upload:
     # https://github.com/christroutner/trickle-ipfs
     image: christroutner/trickle-ipfs:v1.0.1
     #build:
     #  context: ./
     #  dockerfile: Dockerfile
-    container_name: ipfs
+    container_name: ipfs-p2wdb-upload
     environment:
       IPFS_DAEMON_ARGUMENTS: '--enable-pubsub-experiment --migrate=true --agent-version-suffix=docker --routing=dhtclient'
       UPLOAD_KBPS: '1000'
@@ -53,8 +53,8 @@ services:
         max-file: '10'
     mem_limit: 1000mb
     links:
-      - mongo-ipfs-service
-      - ipfs
+      - mongo-p2wdb-upload
+      - ipfs-p2wdb-upload
     ports:
       - '5010:5010' # <host port>:<container port>
     volumes:
