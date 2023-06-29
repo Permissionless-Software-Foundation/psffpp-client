@@ -13,7 +13,7 @@
 // const IPFS = require('@chris.troutner/ipfs')
 // import IPFSembedded from 'ipfs';
 
-import { create } from 'ipfs-http-client'
+import { create, globSource } from 'ipfs-http-client'
 import fs from 'fs'
 import http from 'http'
 
@@ -28,6 +28,7 @@ class IpfsAdapter {
     this.config = config
     this.fs = fs
     this.create = create
+    this.globSource = globSource
 
     // Choose the IPFS constructor based on the config settings.
     // this.IPFS = IPFSembedded // default
