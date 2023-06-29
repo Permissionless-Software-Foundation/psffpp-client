@@ -1,5 +1,5 @@
 
-function start() {
+function start () {
   setInterval(function () {
     const now = new Date()
     console.log(`timestamp: ${now.toLocaleString()}`)
