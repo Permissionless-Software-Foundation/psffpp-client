@@ -11,7 +11,7 @@ import AuthRESTController from './auth/index.js'
 import UserRouter from './users/index.js'
 import ContactRESTController from './contact/index.js'
 import LogsRESTController from './logs/index.js'
-import FilesRouter from './files/index.js'
+import FilesRouter from './file-ctl/index.js'
 
 class RESTControllers {
   constructor (localConfig = {}) {
