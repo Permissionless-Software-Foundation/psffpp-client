@@ -25,6 +25,7 @@ class FilesController {
 
     // Bind 'this' object to each subfunction.
     this.addFile = this.addFile.bind(this)
+    this.fileStatus = this.fileStatus.bind(this)
   }
 
   // Handles the file upload.
@@ -75,6 +76,24 @@ class FilesController {
     })
 
     return tusServer.handle(ctx.req, ctx.res)
+  }
+
+  // Check the status of a file upload
+  fileStatus (ctx) {
+    try {
+      const sn = ctx.params.sn
+      // console.log('fileStatus() sn: ', sn)
+
+      const fileStatus = this.filePairMgmnt.getPair(sn)
+      console.log('fileStatus: ', fileStatus)
+
+      ctx.body = {
+        success: true,
+        fileStatus
+      }
+    } catch (err) {
+      console.log('Error in fileStatus(): ', err)
+    }
   }
 }
 

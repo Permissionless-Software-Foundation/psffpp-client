@@ -32,6 +32,51 @@ class FilePairMgmnt {
     // Bind 'this' object to all subfunctions
     this.addFile = this.addFile.bind(this)
     this.addFileToIpfs = this.addFileToIpfs.bind(this)
+    this.checkPairs = this.checkPairs.bind(this)
+    this.getPair = this.getPair.bind(this)
+
+    setInterval(this.checkPairs, 5000)
+  }
+
+  // Called by a timer interval to display data about pairs.
+  checkPairs () {
+    try {
+      console.log('this.allPairs: ', this.allPairs)
+    } catch (err) {
+      console.error('Error in checkPairs()')
+      throw err
+    }
+  }
+
+  // Get the status of an file-upload pair. This used by the REST API to get
+  // the status of pinning the file.
+  getPair (sn) {
+    try {
+      console.log('getPair() sn: ', sn)
+
+      let pairFound = false
+
+      for (let i = 0; i < this.allPairs.length; i++) {
+        const thisPair = this.allPairs[i]
+        const thisSn = parseInt(thisPair.sn)
+        console.log('thisSn: ', thisSn)
+        console.log('typeof sn: ', typeof sn)
+        console.log('typeof thisSn: ', typeof thisSn)
+
+        if (thisSn === parseInt(sn)) {
+          console.log('Pair found!')
+
+          pairFound = thisPair
+
+          break
+        }
+      }
+
+      return pairFound
+    } catch (err) {
+      console.error('Error in getPair()')
+      throw err
+    }
   }
 
   // Add a file to the pair

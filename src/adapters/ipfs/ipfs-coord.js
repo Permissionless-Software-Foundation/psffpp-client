@@ -74,13 +74,14 @@ class IpfsCoordAdapter {
       circuitRelayInfo,
       apiInfo: this.config.apiInfo,
       announceJsonLd: this.config.announceJsonLd,
-      debugLevel: this.config.debugLevel
+      debugLevel: this.config.debugLevel,
+      nodeType: 'external'
     }
 
     // Production env uses external go-ipfs node.
-    if (this.config.isProduction) {
-      ipfsCoordOptions.nodeType = 'external'
-    }
+    // if (this.config.isProduction) {
+    //   ipfsCoordOptions.nodeType = 'external'
+    // }
 
     this.ipfsCoord = new this.IpfsCoord(ipfsCoordOptions)
 
