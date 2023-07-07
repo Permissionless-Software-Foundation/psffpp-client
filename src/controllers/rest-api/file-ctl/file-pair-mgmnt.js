@@ -35,13 +35,17 @@ class FilePairMgmnt {
     this.checkPairs = this.checkPairs.bind(this)
     this.getPair = this.getPair.bind(this)
 
-    setInterval(this.checkPairs, 5000)
+    setInterval(this.checkPairs, 60000 * 10)
   }
 
   // Called by a timer interval to display data about pairs.
   checkPairs () {
     try {
-      console.log('this.allPairs: ', this.allPairs)
+      // console.log('this.allPairs: ', this.allPairs)
+
+      const now = new Date()
+
+      console.log(`Heartbeat: ${now.toLocaleString()}, Number of file uploaded: ${this.allPairs.length}`)
     } catch (err) {
       console.error('Error in checkPairs()')
       throw err
@@ -59,12 +63,12 @@ class FilePairMgmnt {
       for (let i = 0; i < this.allPairs.length; i++) {
         const thisPair = this.allPairs[i]
         const thisSn = parseInt(thisPair.sn)
-        console.log('thisSn: ', thisSn)
-        console.log('typeof sn: ', typeof sn)
-        console.log('typeof thisSn: ', typeof thisSn)
+        // console.log('thisSn: ', thisSn)
+        // console.log('typeof sn: ', typeof sn)
+        // console.log('typeof thisSn: ', typeof thisSn)
 
         if (thisSn === parseInt(sn)) {
-          console.log('Pair found!')
+          // console.log('Pair found!')
 
           pairFound = thisPair
 
@@ -98,51 +102,61 @@ class FilePairMgmnt {
       }
 
       // See if a file pair already exists in the state.
-      let snExists = false
-      let existingPair
-      for (let i = 0; i < this.allPairs.length; i++) {
-        const thisPair = this.allPairs[i]
+      // let snExists = false
+      // let existingPair
+      // for (let i = 0; i < this.allPairs.length; i++) {
+      //   const thisPair = this.allPairs[i]
+      //
+      //   if (thisPair.sn === sn) {
+      //     snExists = true
+      //     existingPair = thisPair
+      //     break
+      //   }
+      // }
 
-        if (thisPair.sn === sn) {
-          snExists = true
-          existingPair = thisPair
-          break
-        }
+      // if (snExists) {
+      // Add the second image to the pair.
+      // if (desiredFileName.includes('thumbnail')) {
+      //   existingPair.thumbnailFile = inObj
+      //   existingPair.thumbnailFile.isThumbnail = true
+      //   existingPair.thumbnailFile.isOver1MB = false
+      //   if (fileSizeInMegabytes > 1) this.thumbnailFile.isOver1MB = true
+      // } else {
+
+      // Create a new File Pair
+      const thisPair = new FilePair(inObj)
+      console.log('new file pair created: ', thisPair)
+
+      thisPair.originalFile = inObj
+      thisPair.originalFile.isThumbnail = false
+      thisPair.originalFile.isOver1MB = false
+      if (fileSizeInMegabytes > 1) {
+        // this.originalFile.isOver1MB = true
+        throw new Error('File size is over 1 MB')
       }
+      // }
 
-      if (snExists) {
-        // Add the second image to the pair.
-        if (desiredFileName.includes('thumbnail')) {
-          existingPair.thumbnailFile = inObj
-          existingPair.thumbnailFile.isThumbnail = true
-          existingPair.thumbnailFile.isOver1MB = false
-          if (fileSizeInMegabytes > 1) this.thumbnailFile.isOver1MB = true
-        } else {
-          existingPair.originalFile = inObj
-          existingPair.originalFile.isThumbnail = false
-          existingPair.originalFile.isOver1MB = false
-          if (fileSizeInMegabytes > 1) this.originalFile.isOver1MB = true
-        }
+      // Choose the original or the thumbnail to use, based on file size.
+      // if (existingPair.originalFile.fileSizeInMegabytes > 1) {
+      //   existingPair.useThumbnail = true
+      // }
 
-        // Choose the original or the thumbnail to use, based on file size.
-        if (existingPair.originalFile.fileSizeInMegabytes > 1) {
-          existingPair.useThumbnail = true
-        }
+      // Signal that the pair has finished uploading and choosing the image
+      // is complete.
+      // thisPair.uploadComplete = true
 
-        // Signal that the pair has finished uploading and choosing the image
-        // is complete.
-        existingPair.uploadComplete = true
+      this.allPairs.push(thisPair)
 
-        console.log('upload complete for this file pair: ', existingPair)
+      console.log('upload complete for this file pair: ', thisPair)
 
-        this.addFileToIpfs(existingPair)
-      } else {
-        // Create a new File Pair
-        const thisPair = new FilePair(inObj)
-        console.log('new file pair created: ', thisPair)
-
-        this.allPairs.push(thisPair)
-      }
+      this.addFileToIpfs(thisPair)
+      // } else {
+      //   // Create a new File Pair
+      //   const thisPair = new FilePair(inObj)
+      //   console.log('new file pair created: ', thisPair)
+      //
+      //   this.allPairs.push(thisPair)
+      // }
     } catch (err) {
       console.error('Error in addPair(): ', err)
       throw err
@@ -202,7 +216,9 @@ class FilePairMgmnt {
 
       const wif = filePair.originalFile.wif
 
-      await this.pinCid({ cid, wif })
+      filePair.cid = cid
+
+      await this.pinCid({ cid, wif, filePair })
     } catch (err) {
       console.error('Error in addFileToIpfs(): ', err)
 
@@ -213,7 +229,8 @@ class FilePairMgmnt {
   // Pin the CID of the file with the P2WDB pinning cluster
   async pinCid (inObj = {}) {
     try {
-      const { cid, wif } = inObj
+      console.log('pinCid() inObj: ', inObj)
+      const { cid, wif, filePair } = inObj
 
       console.log('wif: ', wif)
       const bchWallet = new SlpWallet(wif, { interface: 'consumer-api' })
@@ -227,6 +244,12 @@ class FilePairMgmnt {
 
       const outData = await pin.cid(cid)
       console.log('outData: ', outData)
+
+      // Update the state to reflect that update has completed.
+      filePair.uploadComplete = true
+      filePair.p2wdbHash = outData
+
+      return outData
     } catch (err) {
       console.error('Error in pinCid()')
       throw err
