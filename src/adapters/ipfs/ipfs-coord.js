@@ -5,7 +5,8 @@
 */
 
 // Global npm libraries
-import IpfsCoord from 'ipfs-coord-esm'
+// import IpfsCoord from 'ipfs-coord-esm'
+import IpfsCoord from 'helia-coord'
 
 // import BCHJS from '@psf/bch-js';
 import SlpWallet from 'minimal-slp-wallet'
@@ -64,18 +65,22 @@ class IpfsCoordAdapter {
       }
     }
 
+    const nullLog = () => {}
+
     const ipfsCoordOptions = {
       ipfs: this.ipfs,
       type: 'node.js',
       // type: 'browser',
       wallet: this.wallet,
-      privateLog: console.log, // Default to console.log
+      // privateLog: console.log, // Default to console.log
+      privateLog: nullLog,
       isCircuitRelay: this.config.isCircuitRelay,
       circuitRelayInfo,
       apiInfo: this.config.apiInfo,
       announceJsonLd: this.config.announceJsonLd,
       debugLevel: this.config.debugLevel,
-      nodeType: 'external'
+      v1Relays: this.config.v1Relays,
+      tcpPort: this.config.ipfsTcpPort
     }
 
     // Production env uses external go-ipfs node.

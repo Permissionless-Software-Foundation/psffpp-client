@@ -11,6 +11,7 @@ import AuthRESTController from './auth/index.js'
 import UserRouter from './users/index.js'
 import ContactRESTController from './contact/index.js'
 import LogsRESTController from './logs/index.js'
+import IpfsRESTController from './ipfs/index.js'
 import FilesRouter from './file-ctl/index.js'
 
 class RESTControllers {
@@ -53,6 +54,10 @@ class RESTControllers {
     // Attach the REST API Controllers associated with the /logs route
     const logsRESTController = new LogsRESTController(dependencies)
     logsRESTController.attach(app)
+
+    // Attach the REST API Controllers associated with the /ipfs route
+    const ipfsRESTController = new IpfsRESTController(dependencies)
+    ipfsRESTController.attach(app)
 
     const filesRESTController = new FilesRouter(dependencies)
     filesRESTController.attach(app)

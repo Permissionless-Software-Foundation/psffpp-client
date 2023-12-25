@@ -35,4 +35,8 @@ export IPFS_API_PORT=5001
 export IPFS_TCP_PORT=4001
 export IPFS_WS_PORT=4003
 
+# Set the debug level for helia-coord. 0-3.
+# 0 = no debug logs. 3 = maximum debug logs.
+export DEBUG_LEVEL=0
+
 npm start
