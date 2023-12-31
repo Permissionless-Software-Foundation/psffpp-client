@@ -208,21 +208,119 @@ class FilePairMgmnt {
       // console.log('hashes: ', hashes)
       // const cid = hashes[0]
 
-      const fileData = await this.adapters.ipfs.ipfs.add(fileObj, options)
+      const fileData = await this.adapters.ipfs.ipfs.fs.addFile(fileObj, options)
       console.log('fileData: ', fileData)
 
-      const cid = fileData.cid.toString()
+      const cid = fileData.toString()
       console.log(`File added with CID: ${cid}`)
 
       const wif = filePair.originalFile.wif
 
       filePair.cid = cid
 
-      await this.pinCid({ cid, wif, filePair })
+      console.log(`Ready to write CID ${cid} to blockchain for pinning.`)
+
+      // await this.pinCid({ cid, wif, filePair })
+
+      // Generate a pin claim on the blockchain.
+      await this.createPinClaim({ cid, wif })
     } catch (err) {
       console.error('Error in addFileToIpfs(): ', err)
 
       // Do not throw errors. This is a top-level function.
+    }
+  }
+
+  // Create a Pin Claim on the blockchain. This will cause ipfs-file-pin-service
+  // instances to download and pin the file.
+  async createPinClaim (inObj = {}) {
+    try {
+      const { cid, wif } = inObj
+
+      // Initialize the wallet
+      const bchWallet = new SlpWallet(wif, { interface: 'consumer-api' })
+      await bchWallet.initialize()
+
+      // Create a proof-of-burn (PoB) transaction
+      const WRITE_PRICE = 0.08335233 // Cost in PSF tokens to pin 1MB
+      const PSF_TOKEN_ID = '38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0'
+      const pobTxid = await bchWallet.burnTokens(WRITE_PRICE, PSF_TOKEN_ID)
+      console.log(`Proof-of-burn TX: ${pobTxid}`)
+
+      // Get info and libraries from the wallet.
+      const addr = bchWallet.walletInfo.address
+      const bchjs = bchWallet.bchjs
+
+      // Get a UTXO to spend to generate the pin claim TX.
+      let utxos = await bchWallet.getUtxos()
+      utxos = utxos.bchUtxos
+      const utxo = bchjs.Utxo.findBiggestUtxo(utxos)
+
+      // instance of transaction builder
+      const transactionBuilder = new bchjs.TransactionBuilder()
+
+      const originalAmount = utxo.value
+      const vout = utxo.tx_pos
+      const txid = utxo.tx_hash
+
+      // add input with txid and index of vout
+      transactionBuilder.addInput(txid, vout)
+
+      // TODO: Compute the 1 sat/byte fee.
+      const fee = 500
+
+      // BEGIN - Construction of OP_RETURN transaction.
+
+      // Add the OP_RETURN to the transaction.
+      const script = [
+        bchjs.Script.opcodes.OP_RETURN,
+        Buffer.from('00510000', 'hex'), // Makes message comply with the memo.cash protocol.
+        Buffer.from(pobTxid, 'hex'),
+        Buffer.from(cid)
+      ]
+
+      // Compile the script array into a bitcoin-compliant hex encoded string.
+      const data = bchjs.Script.encode(script)
+
+      // Add the OP_RETURN output.
+      transactionBuilder.addOutput(data, 0)
+
+      // END - Construction of OP_RETURN transaction.
+
+      // Send the same amount - fee.
+      transactionBuilder.addOutput(addr, originalAmount - fee)
+
+      // Create an EC Key Pair from the user-supplied WIF.
+      const ecPair = bchjs.ECPair.fromWIF(wif)
+
+      // Sign the transaction with the HD node.
+      let redeemScript
+      transactionBuilder.sign(
+        0,
+        ecPair,
+        redeemScript,
+        transactionBuilder.hashTypes.SIGHASH_ALL,
+        originalAmount
+      )
+
+      // build tx
+      const tx = transactionBuilder.build()
+
+      // output rawhex
+      const hex = tx.toHex()
+      // console.log(`TX hex: ${hex}`);
+      // console.log(` `);
+
+      // Broadcast transation to the network
+      // const txidStr = await bchjs.RawTransactions.sendRawTransaction(hex)
+      const txidStr = await bchWallet.broadcast({ hex })
+      console.log(`Claim Transaction ID: ${txidStr}`)
+      console.log(`https://blockchair.com/bitcoin-cash/transaction/${txidStr}`)
+
+      return txidStr
+    } catch (err) {
+      console.error('Error in file-pair-mgmnt.js/createPinClaim()')
+      throw err
     }
   }
 
