@@ -79,12 +79,12 @@ class FilesController {
   }
 
   // Check the status of a file upload
-  fileStatus (ctx) {
+  async fileStatus (ctx) {
     try {
       const sn = ctx.params.sn
       // console.log('fileStatus() sn: ', sn)
 
-      const fileStatus = this.filePairMgmnt.getPair(sn)
+      const fileStatus = await this.filePairMgmnt.getPair(sn)
       console.log('fileStatus: ', fileStatus)
 
       ctx.body = {

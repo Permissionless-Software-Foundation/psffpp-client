@@ -6,6 +6,7 @@
 import { Pin } from 'p2wdb'
 import SlpWallet from 'minimal-slp-wallet'
 import fs from 'fs'
+import axios from 'axios'
 
 // import FilePair from './file-pair.js'
 
@@ -21,6 +22,7 @@ class FilePairMgmnt {
     // Encapsulate dependencies
     // this.bchWallet = new SlpWallet(undefined, { interface: 'consumer-api' })
     // this.pin = new Pin({bchWallet: this.bchWallet})
+    this.axios = axios
 
     // State
     this.sn = 0
@@ -54,7 +56,7 @@ class FilePairMgmnt {
 
   // Get the status of an file-upload pair. This used by the REST API to get
   // the status of pinning the file.
-  getPair (sn) {
+  async getPair (sn) {
     try {
       console.log('getPair() sn: ', sn)
 
@@ -75,6 +77,15 @@ class FilePairMgmnt {
           break
         }
       }
+      console.log('pairFound: ', pairFound)
+
+      if (!pairFound.cid) return pairFound
+
+      // Get the pin status from ipfs-file-pin-service
+      // const result = await axios.get(`http://localhost:5031/ipfs/pin-status/${pairFound.cid}`)
+      const result = await axios.get(`http://159.69.150.103:5031/ipfs/pin-status/${pairFound.cid}`)
+      console.log('result.data: ', result.data)
+      pairFound.dataPinned = result.data.dataPinned
 
       return pairFound
     } catch (err) {
@@ -145,11 +156,10 @@ class FilePairMgmnt {
       // is complete.
       // thisPair.uploadComplete = true
 
-      this.allPairs.push(thisPair)
-
       console.log('upload complete for this file pair: ', thisPair)
 
-      this.addFileToIpfs(thisPair)
+      const cid = this.addFileToIpfs(thisPair)
+      thisPair.cid = cid
       // } else {
       //   // Create a new File Pair
       //   const thisPair = new FilePair(inObj)
@@ -157,6 +167,8 @@ class FilePairMgmnt {
       //
       //   this.allPairs.push(thisPair)
       // }
+
+      this.allPairs.push(thisPair)
     } catch (err) {
       console.error('Error in addPair(): ', err)
       throw err
@@ -172,7 +184,7 @@ class FilePairMgmnt {
   // be downloaded and pinned by the pinning cluster.
   async addFileToIpfs (filePair) {
     try {
-      console.log('ready to upload file')
+      console.log('file-pair-mgmnt.js/addFileToIpfs() ready to upload file')
       console.log('filePair: ', filePair)
 
       // const globSource = this.adapters.ipfs.ipfsAdapter.globSource
@@ -224,6 +236,8 @@ class FilePairMgmnt {
 
       // Generate a pin claim on the blockchain.
       await this.createPinClaim({ cid, wif })
+
+      return cid
     } catch (err) {
       console.error('Error in addFileToIpfs(): ', err)
 
