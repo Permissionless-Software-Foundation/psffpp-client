@@ -191,6 +191,8 @@ class FilePairMgmnt {
       // console.log('globSource: ', globSource)
       const path = `files/${filePair.originalFile.desiredFileName}`
 
+      const filename = filePair.originalFile.desiredFileName
+
       const readableStream = fs.createReadStream(path)
 
       const fileObj = {
@@ -235,7 +237,7 @@ class FilePairMgmnt {
       // await this.pinCid({ cid, wif, filePair })
 
       // Generate a pin claim on the blockchain.
-      await this.createPinClaim({ cid, wif })
+      await this.createPinClaim({ cid, wif, filename })
 
       return cid
     } catch (err) {
@@ -249,7 +251,7 @@ class FilePairMgmnt {
   // instances to download and pin the file.
   async createPinClaim (inObj = {}) {
     try {
-      const { cid, wif } = inObj
+      const { cid, wif, filename } = inObj
 
       // Initialize the wallet
       const bchWallet = new SlpWallet(wif, { interface: 'consumer-api' })
@@ -290,7 +292,8 @@ class FilePairMgmnt {
         bchjs.Script.opcodes.OP_RETURN,
         Buffer.from('00510000', 'hex'), // Makes message comply with the memo.cash protocol.
         Buffer.from(pobTxid, 'hex'),
-        Buffer.from(cid)
+        Buffer.from(cid),
+        Buffer.from(filename)
       ]
 
       // Compile the script array into a bitcoin-compliant hex encoded string.
