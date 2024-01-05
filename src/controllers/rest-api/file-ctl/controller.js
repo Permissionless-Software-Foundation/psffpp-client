@@ -14,6 +14,8 @@ import FilePairMgmnt from './file-pair-mgmnt.js'
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
+let _this
+
 class FilesController {
   constructor (localConfig = {}) {
     this.adapters = localConfig.adapters
@@ -37,7 +39,7 @@ class FilesController {
         datastore: new FileStore({ directory: filePath })
       })
 
-      this.tusServer.on(EVENTS.POST_TERMINATE, this.tusEventHandler)
+      this.tusServer.on(EVENTS.POST_FINISH, this.tusEventHandler)
     } catch (err) {
       console.error('Error creating Tus server: ', err)
     }
@@ -46,6 +48,8 @@ class FilesController {
     this.addFile = this.addFile.bind(this)
     this.fileStatus = this.fileStatus.bind(this)
     this.tusEventHandler = this.tusEventHandler.bind(this)
+
+    _this = this
   }
 
   // async addFile(ctx) {
@@ -102,39 +106,48 @@ class FilesController {
     return this.tusServer.handle(ctx.req, ctx.res)
   }
 
-  async tusEventHandler (event) {
+  async tusEventHandler (req, res, upload) {
     try {
-      console.log('Upload Completed!')
-      console.log('event: ', event)
-      const fileName = event.file.id
+      // console.log('req: ', req)
+      // console.log('res: ', res)
+      console.log('upload: ', upload)
 
-      const metad = await this.tus.parseMetadataString(event.file.upload_metadata)
-      console.log('metad: ', metad)
-      console.log(metad.filename.decoded)
-      const wif = metad.wif.decoded
+      console.log('Upload Completed!')
+      // console.log('event: ', event)
+      const fileName = upload.id
+
+      // const metad = await this.tus.parseMetadataString(upload.metadata)
+      // console.log('metad: ', metad)
+      // console.log(metad.filename.decoded)
+      const wif = upload.metadata.wif
 
       // Generate a safe filename based on the files original filename
-      let desiredFileName = metad.filename.decoded
+      // let desiredFileName = metad.filename.decoded
+      let desiredFileName = upload.metadata.filename
       desiredFileName = desiredFileName.replace(/\s+/g, '-').toLowerCase()
 
-      this.fs.renameSync(
-        `files/${fileName}`,
-        `files/${desiredFileName}`
+      // Rename the file back to the original filename.
+      const filePath = `${__dirname}../../../../files`
+      _this.fs.renameSync(
+        `${filePath}/${fileName}`,
+        `${filePath}/${desiredFileName}`
       )
 
       // Figure out the size of the file
-      const stats = this.fs.statSync(`files/${desiredFileName}`)
+      const stats = _this.fs.statSync(`${filePath}/${desiredFileName}`)
       const fileSizeInBytes = stats.size
       const fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024)
       console.log(`File size in megabytes: ${fileSizeInMegabytes}`)
 
+      // Pass the file to the
       const fileObj = {
         desiredFileName,
-        sn: metad.sn.decoded,
+        // sn: metad.sn.decoded,
+        sn: upload.metadata.sn,
         fileSizeInMegabytes,
         wif
       }
-      this.filePairMgmnt.addFile(fileObj)
+      _this.filePairMgmnt.addFile(fileObj)
     } catch (err) {
       console.error(
         'Error in modules/files/controller.js Upload Complete event handler.'
