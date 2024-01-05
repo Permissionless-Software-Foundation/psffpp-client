@@ -27,6 +27,8 @@ services:
       - mongo-ipfs-service
     ports:
       - '5010:5010' # <host port>:<container port>
+      - '4001:4001' # IPFS TCP
+      - '4003:4003' # IPFS WS
     volumes:
       - ../data/ipfsdata:/home/safeuser/ipfs-service-provider/.ipfsdata
       - ./start-production.sh:/home/safeuser/p2wdb-image-upload-backend/start-production.sh
