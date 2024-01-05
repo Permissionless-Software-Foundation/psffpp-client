@@ -6,7 +6,9 @@
 // Global npm libraries
 import tus from 'tus-node-server'
 
-const tusServer = new tus.Server()
+const tusServer = new tus.Server({
+  respectForwardedHeaders: true
+})
 
 let _this
 
