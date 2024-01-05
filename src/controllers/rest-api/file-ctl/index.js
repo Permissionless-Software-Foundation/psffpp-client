@@ -45,6 +45,7 @@ class FilesRouter {
     // Define the routes and attach the controller.
     this.router.post('/', this.filesRESTController.addFile)
     this.router.patch('/:id', this.filesRESTController.addFile)
+    // this.router.head('/:id', this.filesRESTController.addFile)
     this.router.get('/status/:sn', this.filesRESTController.fileStatus)
 
     // Attach the Controller routes to the Koa app.
