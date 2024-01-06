@@ -1,5 +1,8 @@
 /*
   /files REST Controller.
+
+  Tus code examples:
+  https://socket.dev/npm/package/@tus/server#events
 */
 
 // Global npm libraries
@@ -36,7 +39,8 @@ class FilesController {
     try {
       this.tusServer = new Server({
         path: '/files',
-        datastore: new FileStore({ directory: filePath })
+        datastore: new FileStore({ directory: filePath }),
+        respectForwardedHeaders: true
       })
 
       this.tusServer.on(EVENTS.POST_FINISH, this.tusEventHandler)
