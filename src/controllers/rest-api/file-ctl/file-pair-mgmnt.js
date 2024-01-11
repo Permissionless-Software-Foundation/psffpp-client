@@ -301,19 +301,19 @@ class FilePair {
     }
 
     // State
-    if (desiredFileName.includes('thumbnail')) {
-      this.thumbnailFile = inObj
-      this.thumbnailFile.isThubnail = true
+    // if (desiredFileName.includes('thumbnail')) {
+    //   this.thumbnailFile = inObj
+    //   this.thumbnailFile.isThubnail = true
+    //
+    //   this.thumbnailFile.isOver1MB = false
+    //   if (fileSizeInMegabytes > 1) this.thumbnailFile.isOver1MB = true
+    // } else {
+    this.originalFile = inObj
+    this.originalFile.isThumbnail = false
 
-      this.thumbnailFile.isOver1MB = false
-      if (fileSizeInMegabytes > 1) this.thumbnailFile.isOver1MB = true
-    } else {
-      this.originalFile = inObj
-      this.originalFile.isThumbnail = false
-
-      this.originalFile.isOver1MB = false
-      if (fileSizeInMegabytes > 1) this.originalFile.isOver1MB = true
-    }
+    this.originalFile.isOver1MB = false
+    if (fileSizeInMegabytes > 1) this.originalFile.isOver1MB = true
+    // }
 
     this.sn = sn
     this.useThumbnail = false
@@ -321,4 +321,4 @@ class FilePair {
   }
 }
 
-export default FilePairMgmnt
+export { FilePairMgmnt, FilePair }

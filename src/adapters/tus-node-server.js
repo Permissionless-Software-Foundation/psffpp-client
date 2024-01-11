@@ -1,6 +1,6 @@
 /*
-    This library handles file uploads using the TUS protocol. This is a newer
-    protocol which allows file upload with resume.
+  This library handles file uploads using the TUS protocol. This is a newer
+  protocol which allows file upload with resume.
 */
 
 // Global npm libraries
@@ -10,59 +10,42 @@ const tusServer = new tus.Server({
   respectForwardedHeaders: true
 })
 
-let _this
+// let _this
 
 class TUS {
   constructor (path) {
     // Embed external libraries into the class, for easy mocking.
     this.tusServer = tusServer
-    _this = this
+    // _this = this
     // By default make path an empty string.
-    _this.filesPath = ''
+    this.filesPath = ''
 
     // If user specified a path to use, use that.
     path && path !== ''
-      ? (_this.filesPath = path)
-      : (_this.filesPath = '/files')
+      ? (this.filesPath = path)
+      : (this.filesPath = '/files')
+
+    // Bind 'this' object to all subfunctions.
+    this.server = this.server.bind(this)
   }
 
   async server () {
-    if (_this.filesPath && typeof _this.filesPath !== 'string') {
-      throw new Error('Path must be a string')
-    }
-
     try {
-      console.log('_this.filesPath: ', _this.filesPath)
+      if (this.filesPath && typeof this.filesPath !== 'string') {
+        throw new Error('Path must be a string')
+      }
 
-      _this.tusServer.datastore = new tus.FileStore({
-        path: _this.filesPath
+      console.log('this.filesPath: ', this.filesPath)
+
+      this.tusServer.datastore = new tus.FileStore({
+        path: this.filesPath
       })
 
-      return _this.tusServer
+      return this.tusServer
     } catch (err) {
       console.error('Error resolving Tus server: ', err)
       return false
     }
-  }
-
-  getServer () {
-    return _this.tusServer
-  }
-
-  // parse metadata from file
-  async parseMetadataString (metadataString) {
-    const kvPairList = metadataString.split(',')
-
-    return kvPairList.reduce((metadata, kvPair) => {
-      const [key, base64Valuse] = kvPair.split(' ')
-
-      metadata[key] = {
-        encoded: base64Valuse,
-        decoded: Buffer.from(base64Valuse, 'base64').toString('ascii')
-      }
-
-      return metadata
-    }, {})
   }
 }
 

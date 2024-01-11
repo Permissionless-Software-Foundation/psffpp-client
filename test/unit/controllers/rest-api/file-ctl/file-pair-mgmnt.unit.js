@@ -8,7 +8,7 @@ import sinon from 'sinon'
 import cloneDeep from 'lodash.clonedeep'
 
 // Local libraries
-import FilePairMgmnt from '../../../../../src/controllers/rest-api/file-ctl/file-pair-mgmnt.js'
+import { FilePairMgmnt, FilePair } from '../../../../../src/controllers/rest-api/file-ctl/file-pair-mgmnt.js'
 import adapters from '../../../mocks/adapters/index.js'
 import mockDataLib from '../../../mocks/controllers/file-pair-mock.js'
 import { MockBchWallet } from '../../../mocks/wallet.js'
@@ -187,6 +187,63 @@ describe('#FilePairMgmnt', () => {
       } catch (err) {
         // console.log('err.message: ', err.message)
         assert.include(err.message, 'test error')
+      }
+    })
+  })
+
+  describe('#FilePair', () => {
+    it('should generate a file-pair instance', () => {
+      const inObj = {
+        fileSizeInMegabytes: 0.1,
+        desiredFileName: 'test.txt',
+        sn: 12345
+      }
+
+      const result = new FilePair(inObj)
+      // console.log('result: ', result)
+
+      assert.property(result, 'originalFile')
+    })
+
+    it('should throw an error if fileSizeInMegabytes is not specified', () => {
+      try {
+        const result = new FilePair()
+
+        assert.fail('Unexpected code path')
+        console.log('result: ', result)
+      } catch (err) {
+        assert.include(err.message, 'File object input must contain a fileSizeInMegabytes property')
+      }
+    })
+
+    it('should throw an error if desiredFileName is not specified', () => {
+      try {
+        const inObj = {
+          fileSizeInMegabytes: 0.1
+        }
+
+        const result = new FilePair(inObj)
+
+        assert.fail('Unexpected code path')
+        console.log(result)
+      } catch (err) {
+        assert.include(err.message, 'File object input must contain a desiredFileName property')
+      }
+    })
+
+    it('should throw an error if serial number is not specified', () => {
+      try {
+        const inObj = {
+          fileSizeInMegabytes: 0.1,
+          desiredFileName: 'test.txt'
+        }
+
+        const result = new FilePair(inObj)
+
+        assert.fail('Unexpected code path')
+        console.log(result)
+      } catch (err) {
+        assert.include(err.message, 'File object input must contain a sn (serial number) property')
       }
     })
   })

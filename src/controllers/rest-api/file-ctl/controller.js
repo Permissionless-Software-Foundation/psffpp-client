@@ -13,7 +13,7 @@ import { FileStore } from '@tus/file-store'
 import * as url from 'url'
 
 // Local libraries
-import FilePairMgmnt from './file-pair-mgmnt.js'
+import { FilePairMgmnt } from './file-pair-mgmnt.js'
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
@@ -76,9 +76,6 @@ class FilesController {
       // console.log('event: ', event)
       const fileName = upload.id
 
-      // const metad = await this.tus.parseMetadataString(upload.metadata)
-      // console.log('metad: ', metad)
-      // console.log(metad.filename.decoded)
       const wif = upload.metadata.wif
 
       // Generate a safe filename based on the files original filename
