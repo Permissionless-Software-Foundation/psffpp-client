@@ -7,6 +7,9 @@ class IpfsAdapter {
     this.ipfs = {
       files: {
         stat: () => {}
+      },
+      fs: {
+        addFile: async () => {}
       }
     }
   }
