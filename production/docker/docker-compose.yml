@@ -30,6 +30,6 @@ services:
       - '4001:4001' # IPFS TCP
       - '4003:4003' # IPFS WS
     volumes:
-      - ../data/ipfsdata:/home/safeuser/ipfs-service-provider/.ipfsdata
+      - ../data/ipfsdata:/home/safeuser/p2wdb-image-upload-backend/.ipfsdata
       - ./start-production.sh:/home/safeuser/p2wdb-image-upload-backend/start-production.sh
     restart: always
