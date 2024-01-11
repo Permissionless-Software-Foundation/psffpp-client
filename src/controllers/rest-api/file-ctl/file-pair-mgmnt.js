@@ -87,9 +87,12 @@ class FilePairMgmnt {
       const result = await this.axios.get(`${this.config.filePinServer}/ipfs/pin-status/${pairFound.cid}`)
 
       // Display result on command line, but reduce screen spam.
-      result.data.pobTxDetails = result.data.pobTxDetails.txid
-      result.data.claimTxDetails = result.data.claimTxDetails.txid
-      console.log('result.data: ', result.data)
+      try {
+        result.data.pobTxDetails = result.data.pobTxDetails.txid
+        result.data.claimTxDetails = result.data.claimTxDetails.txid
+        console.log('result.data2: ', result.data)
+      } catch(err) { /* exit quietly */ }
+
 
       pairFound.dataPinned = result.data.dataPinned
 
