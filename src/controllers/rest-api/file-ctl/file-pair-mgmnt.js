@@ -91,8 +91,7 @@ class FilePairMgmnt {
         result.data.pobTxDetails = result.data.pobTxDetails.txid
         result.data.claimTxDetails = result.data.claimTxDetails.txid
         console.log('result.data2: ', result.data)
-      } catch(err) { /* exit quietly */ }
-
+      } catch (err) { /* exit quietly */ }
 
       pairFound.dataPinned = result.data.dataPinned
 
