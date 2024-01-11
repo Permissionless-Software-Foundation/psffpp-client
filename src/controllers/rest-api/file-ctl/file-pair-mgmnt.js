@@ -85,7 +85,12 @@ class FilePairMgmnt {
       // Get the pin status from ipfs-file-pin-service
       // const result = await axios.get(`http://localhost:5031/ipfs/pin-status/${pairFound.cid}`)
       const result = await this.axios.get(`${this.config.filePinServer}/ipfs/pin-status/${pairFound.cid}`)
+
+      // Display result on command line, but reduce screen spam.
+      result.data.pobTxDetails = result.data.pobTxDetails.txid
+      result.data.claimTxDetails = result.data.claimTxDetails.txid
       console.log('result.data: ', result.data)
+
       pairFound.dataPinned = result.data.dataPinned
 
       return pairFound
