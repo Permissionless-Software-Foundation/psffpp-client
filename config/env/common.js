@@ -106,5 +106,5 @@ export default {
     // '/ip4/78.46.129.7/tcp/4001/p2p/12D3KooWFQ11GQ5NubsJGhYZ4X3wrAGimLevxfm6HPExCrMYhpSL'
   ],
 
-  filePinServer: 'http://159.69.150.103:5031'
+  filePinServer: 'http://192.168.2.173:5031'
 }

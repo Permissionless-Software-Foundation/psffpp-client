@@ -51,7 +51,7 @@ RUN git clone https://github.com/Permissionless-Software-Foundation/p2wdb-image-
 WORKDIR /home/safeuser/p2wdb-image-upload-backend
 
 # For development: switch to unstable branch
-RUN git checkout ct-unstable
+RUN git checkout v1.0.10
 
 # Install dependencies
 #RUN mkdir .ipfsdata
