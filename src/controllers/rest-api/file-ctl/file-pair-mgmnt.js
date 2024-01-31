@@ -124,8 +124,8 @@ class FilePairMgmnt {
       const thisPair = new FilePair(inObj)
       console.log('new file pair created: ', thisPair)
 
-      if (fileSizeInMegabytes > 1) {
-        throw new Error('File size is over 1 MB')
+      if (fileSizeInMegabytes > 100) {
+        throw new Error('File size is over 100 MB')
       }
 
       thisPair.originalFile = inObj
@@ -319,7 +319,7 @@ class FilePair {
     this.originalFile.isThumbnail = false
 
     this.originalFile.isOver1MB = false
-    if (fileSizeInMegabytes > 1) this.originalFile.isOver1MB = true
+    if (fileSizeInMegabytes > 100) this.originalFile.isOver1MB = true
     // }
 
     this.sn = sn
