@@ -124,17 +124,17 @@ describe('#FilePairMgmnt', () => {
       }
     })
 
-    it('should throw an error if file is over 1 MB', async () => {
-      try {
-        mockData.addFileIn01.fileSizeInMegabytes = 1.2
-
-        await uut.addFile(mockData.addFileIn01)
-
-        assert.fail('Unexpected code path')
-      } catch (err) {
-        assert.include(err.message, 'File size is over 1 MB')
-      }
-    })
+    // it('should throw an error if file is over 1 MB', async () => {
+    //   try {
+    //     mockData.addFileIn01.fileSizeInMegabytes = 1.2
+    //
+    //     await uut.addFile(mockData.addFileIn01)
+    //
+    //     assert.fail('Unexpected code path')
+    //   } catch (err) {
+    //     assert.include(err.message, 'File size is over 1 MB')
+    //   }
+    // })
   })
 
   describe('#addFileToIpfs', () => {

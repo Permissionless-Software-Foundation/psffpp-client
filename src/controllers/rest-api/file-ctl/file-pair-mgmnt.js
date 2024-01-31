@@ -153,6 +153,8 @@ class FilePairMgmnt {
       console.log('file-pair-mgmnt.js/addFileToIpfs() ready to upload file')
       console.log('filePair: ', filePair)
 
+      const fileSizeInMegabytes = filePair.originalFile.fileSizeInMegabytes
+
       const path = `files/${filePair.originalFile.desiredFileName}`
 
       const filename = filePair.originalFile.desiredFileName
@@ -186,7 +188,7 @@ class FilePairMgmnt {
       // await this.pinCid({ cid, wif, filePair })
 
       // Generate a pin claim on the blockchain.
-      await this.createPinClaim({ cid, wif, filename })
+      await this.createPinClaim({ cid, wif, filename, fileSizeInMegabytes })
 
       return cid
     } catch (err) {
@@ -201,7 +203,7 @@ class FilePairMgmnt {
   // instances to download and pin the file.
   async createPinClaim (inObj = {}) {
     try {
-      const { cid, wif, filename } = inObj
+      const { cid, wif, filename, fileSizeInMegabytes } = inObj
 
       // Initialize the wallet
       const bchWallet = new this.SlpWallet(wif, { interface: 'consumer-api' })
@@ -210,7 +212,15 @@ class FilePairMgmnt {
       // Create a proof-of-burn (PoB) transaction
       const WRITE_PRICE = 0.08335233 // Cost in PSF tokens to pin 1MB
       const PSF_TOKEN_ID = '38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0'
-      const pobTxid = await bchWallet.burnTokens(WRITE_PRICE, PSF_TOKEN_ID)
+
+      // Calculate the write cost
+      const dataCost = WRITE_PRICE * fileSizeInMegabytes
+      const minCost = WRITE_PRICE
+      let actualCost = minCost
+      if (dataCost > minCost) actualCost = dataCost
+      console.log(`Burning ${actualCost} PSF tokens for ${fileSizeInMegabytes} MB of data.`)
+
+      const pobTxid = await bchWallet.burnTokens(actualCost, PSF_TOKEN_ID)
       console.log(`Proof-of-burn TX: ${pobTxid}`)
 
       // Get info and libraries from the wallet.
