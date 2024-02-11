@@ -163,7 +163,7 @@ describe('#FilePairMgmnt', () => {
     it('should publish a pin claim on the blockchain', async () => {
       // Mock dependencies and force desired code path
       uut.SlpWallet = MockBchWallet
-      // sandbox.stub(uut.)
+      sandbox.stub(uut.adapters.writePrice, 'getMcWritePrice').resolves(0.08335233)
 
       const inObj = {
         wif: 'L1qLNxN8QS3kPs8UZ5doJsVngP9Qh7dX9qZymSJeZAHX92RQXPkK',

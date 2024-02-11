@@ -18,6 +18,7 @@ import FullStackJWT from './fullstack-jwt.js'
 import config from '../../config/index.js'
 // const { wlogger } = require('./wlogger')
 import TUS from './tus-node-server.js'
+import WritePrice from './write-price.js'
 
 class Adapters {
   constructor (localConfig = {}) {
@@ -31,6 +32,7 @@ class Adapters {
     this.bchjs = new BCHJS()
     this.config = config
     this.tus = new TUS()
+    this.writePrice = new WritePrice()
 
     // Get a valid JWT API key and instance bch-js.
     this.fullStackJwt = new FullStackJWT(config)
@@ -56,6 +58,8 @@ class Adapters {
         // These lines are here to ensure code coverage hits 100%.
         console.log('Not starting IPFS node since this is an e2e test.')
       }
+
+      await this.writePrice.initialize()
 
       console.log('Async Adapters have been started.')
 

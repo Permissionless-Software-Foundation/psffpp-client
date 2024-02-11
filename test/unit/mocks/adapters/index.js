@@ -77,4 +77,8 @@ const localdb = {
   }
 }
 
-export default { ipfs, localdb };
+const writePrice = {
+  getMcWritePrice: async () => 0.08335233
+}
+
+export default { ipfs, localdb, writePrice };

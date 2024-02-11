@@ -111,5 +111,10 @@ export default {
     // '/ip4/78.46.129.7/tcp/4001/p2p/12D3KooWFQ11GQ5NubsJGhYZ4X3wrAGimLevxfm6HPExCrMYhpSL'
   ],
 
-  filePinServer: process.env.FILE_PIN_SERVER ? process.env.FILE_PIN_SERVER : 'http://192.168.2.173:5031'
+  filePinServer: process.env.FILE_PIN_SERVER ? process.env.FILE_PIN_SERVER : 'http://192.168.2.173:5031',
+
+  // Quantity of tokens required to burn in order to pin 1MB. This
+  // default value is overwritten by a lookup of the write price set by the
+  // PSF Minting Council
+  reqTokenQty: 0.08335233
 }

@@ -209,13 +209,17 @@ class FilePairMgmnt {
       const bchWallet = new this.SlpWallet(wif, { interface: 'consumer-api' })
       await bchWallet.initialize()
 
+      // Get the cost in PSF tokens to store 1MB
+      const writePrice = await this.adapters.writePrice.getMcWritePrice()
+      console.log('writePrice: ', writePrice)
+
       // Create a proof-of-burn (PoB) transaction
-      const WRITE_PRICE = 0.08335233 // Cost in PSF tokens to pin 1MB
+      // const WRITE_PRICE = 0.08335233 // Cost in PSF tokens to pin 1MB
       const PSF_TOKEN_ID = '38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0'
 
       // Calculate the write cost
-      const dataCost = WRITE_PRICE * fileSizeInMegabytes
-      const minCost = WRITE_PRICE
+      const dataCost = writePrice * fileSizeInMegabytes
+      const minCost = writePrice
       let actualCost = minCost
       if (dataCost > minCost) actualCost = dataCost
       console.log(`Burning ${actualCost} PSF tokens for ${fileSizeInMegabytes} MB of data.`)
