@@ -104,7 +104,7 @@ class FilesController {
         fileSizeInMegabytes,
         wif
       }
-      _this.filePairMgmnt.addFile(fileObj)
+      await _this.filePairMgmnt.addFile(fileObj)
 
       return true
     } catch (err) {

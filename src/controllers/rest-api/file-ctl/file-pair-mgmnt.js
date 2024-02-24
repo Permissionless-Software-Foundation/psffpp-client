@@ -103,7 +103,7 @@ class FilePairMgmnt {
   }
 
   // Add a file to the pair
-  addFile (inObj = {}) {
+  async addFile (inObj = {}) {
     try {
       console.log('addFile() inObj: ', inObj)
 
@@ -134,7 +134,13 @@ class FilePairMgmnt {
 
       console.log('upload complete for this file pair: ', thisPair)
 
-      const cid = this.addFileToIpfs(thisPair)
+      let cid = null
+      try {
+        cid = await this.addFileToIpfs(thisPair)
+      } catch (err) {
+        thisPair.dataPinned = false
+      }
+
       thisPair.cid = cid
 
       this.allPairs.push(thisPair)
@@ -192,10 +198,9 @@ class FilePairMgmnt {
 
       return cid
     } catch (err) {
-      console.error('Error in addFileToIpfs(): ', err)
+      console.error('Error in addFileToIpfs()')
 
-      // Do not throw errors. This is a top-level function.
-      return false
+      throw err
     }
   }
 

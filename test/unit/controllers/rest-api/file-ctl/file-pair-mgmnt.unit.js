@@ -149,13 +149,18 @@ describe('#FilePairMgmnt', () => {
       assert.equal(result, mockData.filePair01.cid)
     })
 
-    it('should catch and report errors, and return false', async () => {
+    it('should catch, report, and throw errors', async () => {
       // Force error
       sandbox.stub(uut.fs, 'createReadStream').rejects(new Error('test error'))
 
-      const result = await uut.addFileToIpfs(mockData.filePair01)
+      try {
+        await uut.addFileToIpfs(mockData.filePair01)
 
-      assert.equal(result, false)
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        // console.log('error: ', err)
+        assert.include(err.message, 'Cannot read')
+      }
     })
   })
 
