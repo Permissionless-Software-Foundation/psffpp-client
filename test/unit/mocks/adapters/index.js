@@ -7,6 +7,9 @@ class IpfsAdapter {
     this.ipfs = {
       files: {
         stat: () => {}
+      },
+      fs: {
+        addFile: async () => {}
       }
     }
   }
@@ -15,6 +18,11 @@ class IpfsAdapter {
 class IpfsCoordAdapter {
   constructor () {
     this.ipfsCoord = {
+      adapters: {
+        ipfs: {
+          connectToPeer: async () => {}
+        }
+      },
       useCases: {
         peer: {
           sendPrivateMessage: () => {}
@@ -26,7 +34,10 @@ class IpfsCoordAdapter {
 
 const ipfs = {
   ipfsAdapter: new IpfsAdapter(),
-  ipfsCoordAdapter: new IpfsCoordAdapter()
+  ipfsCoordAdapter: new IpfsCoordAdapter(),
+  getStatus: async () => {},
+  getPeers: async () => {},
+  getRelays: async () => {}
 }
 ipfs.ipfs = ipfs.ipfsAdapter.ipfs
 
@@ -66,4 +77,8 @@ const localdb = {
   }
 }
 
-export default { ipfs, localdb };
+const writePrice = {
+  getMcWritePrice: async () => 0.08335233
+}
+
+export default { ipfs, localdb, writePrice };

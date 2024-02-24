@@ -3,11 +3,12 @@
 */
 
 // Global npm libraries
-import { Pin } from 'p2wdb'
 import SlpWallet from 'minimal-slp-wallet'
 import fs from 'fs'
+import axios from 'axios'
 
-// import FilePair from './file-pair.js'
+// Local libraries
+import config from '../../../../config/index.js'
 
 class FilePairMgmnt {
   constructor (localConfig = {}) {
@@ -19,8 +20,10 @@ class FilePairMgmnt {
     }
 
     // Encapsulate dependencies
-    // this.bchWallet = new SlpWallet(undefined, { interface: 'consumer-api' })
-    // this.pin = new Pin({bchWallet: this.bchWallet})
+    this.axios = axios
+    this.config = config
+    this.fs = fs
+    this.SlpWallet = SlpWallet
 
     // State
     this.sn = 0
@@ -32,29 +35,29 @@ class FilePairMgmnt {
     // Bind 'this' object to all subfunctions
     this.addFile = this.addFile.bind(this)
     this.addFileToIpfs = this.addFileToIpfs.bind(this)
-    this.checkPairs = this.checkPairs.bind(this)
+    // this.checkPairs = this.checkPairs.bind(this)
     this.getPair = this.getPair.bind(this)
 
-    setInterval(this.checkPairs, 60000 * 10)
+    // this.checkPairInterval = setInterval(this.checkPairs, 60000 * 10)
   }
 
   // Called by a timer interval to display data about pairs.
-  checkPairs () {
-    try {
-      // console.log('this.allPairs: ', this.allPairs)
-
-      const now = new Date()
-
-      console.log(`Heartbeat: ${now.toLocaleString()}, Number of file uploaded: ${this.allPairs.length}`)
-    } catch (err) {
-      console.error('Error in checkPairs()')
-      throw err
-    }
-  }
+  // checkPairs () {
+  //   try {
+  //     // console.log('this.allPairs: ', this.allPairs)
+  //
+  //     const now = new Date()
+  //
+  //     console.log(`Heartbeat: ${now.toLocaleString()}, Number of file uploaded: ${this.allPairs.length}`)
+  //   } catch (err) {
+  //     console.error('Error in checkPairs()')
+  //     throw err
+  //   }
+  // }
 
   // Get the status of an file-upload pair. This used by the REST API to get
   // the status of pinning the file.
-  getPair (sn) {
+  async getPair (sn) {
     try {
       console.log('getPair() sn: ', sn)
 
@@ -75,6 +78,22 @@ class FilePairMgmnt {
           break
         }
       }
+      console.log('pairFound: ', pairFound)
+
+      if (!pairFound.cid) return pairFound
+
+      // Get the pin status from ipfs-file-pin-service
+      // const result = await axios.get(`http://localhost:5031/ipfs/pin-status/${pairFound.cid}`)
+      const result = await this.axios.get(`${this.config.filePinServer}/ipfs/pin-status/${pairFound.cid}`)
+
+      // Display result on command line, but reduce screen spam.
+      try {
+        result.data.pobTxDetails = result.data.pobTxDetails.txid
+        result.data.claimTxDetails = result.data.claimTxDetails.txid
+        console.log('result.data2: ', result.data)
+      } catch (err) { /* exit quietly */ }
+
+      pairFound.dataPinned = result.data.dataPinned
 
       return pairFound
     } catch (err) {
@@ -84,7 +103,7 @@ class FilePairMgmnt {
   }
 
   // Add a file to the pair
-  addFile (inObj = {}) {
+  async addFile (inObj = {}) {
     try {
       console.log('addFile() inObj: ', inObj)
 
@@ -101,85 +120,52 @@ class FilePairMgmnt {
         throw new Error('File object input must contain a sn (serial number) property')
       }
 
-      // See if a file pair already exists in the state.
-      // let snExists = false
-      // let existingPair
-      // for (let i = 0; i < this.allPairs.length; i++) {
-      //   const thisPair = this.allPairs[i]
-      //
-      //   if (thisPair.sn === sn) {
-      //     snExists = true
-      //     existingPair = thisPair
-      //     break
-      //   }
-      // }
-
-      // if (snExists) {
-      // Add the second image to the pair.
-      // if (desiredFileName.includes('thumbnail')) {
-      //   existingPair.thumbnailFile = inObj
-      //   existingPair.thumbnailFile.isThumbnail = true
-      //   existingPair.thumbnailFile.isOver1MB = false
-      //   if (fileSizeInMegabytes > 1) this.thumbnailFile.isOver1MB = true
-      // } else {
-
       // Create a new File Pair
       const thisPair = new FilePair(inObj)
       console.log('new file pair created: ', thisPair)
 
+      if (fileSizeInMegabytes > 100) {
+        throw new Error('File size is over 100 MB')
+      }
+
       thisPair.originalFile = inObj
       thisPair.originalFile.isThumbnail = false
       thisPair.originalFile.isOver1MB = false
-      if (fileSizeInMegabytes > 1) {
-        // this.originalFile.isOver1MB = true
-        throw new Error('File size is over 1 MB')
-      }
-      // }
-
-      // Choose the original or the thumbnail to use, based on file size.
-      // if (existingPair.originalFile.fileSizeInMegabytes > 1) {
-      //   existingPair.useThumbnail = true
-      // }
-
-      // Signal that the pair has finished uploading and choosing the image
-      // is complete.
-      // thisPair.uploadComplete = true
-
-      this.allPairs.push(thisPair)
 
       console.log('upload complete for this file pair: ', thisPair)
 
-      this.addFileToIpfs(thisPair)
-      // } else {
-      //   // Create a new File Pair
-      //   const thisPair = new FilePair(inObj)
-      //   console.log('new file pair created: ', thisPair)
-      //
-      //   this.allPairs.push(thisPair)
-      // }
+      let cid = null
+      try {
+        cid = await this.addFileToIpfs(thisPair)
+      } catch (err) {
+        thisPair.dataPinned = false
+      }
+
+      thisPair.cid = cid
+
+      this.allPairs.push(thisPair)
+
+      return true
     } catch (err) {
       console.error('Error in addPair(): ', err)
       throw err
     }
   }
 
-  // Remove a file pair from the state.
-  removePair (inObj = {}) {
-
-  }
-
   // Instruct the IPFS node to add the selected file to IPFS, so that it can
   // be downloaded and pinned by the pinning cluster.
   async addFileToIpfs (filePair) {
     try {
-      console.log('ready to upload file')
+      console.log('file-pair-mgmnt.js/addFileToIpfs() ready to upload file')
       console.log('filePair: ', filePair)
 
-      // const globSource = this.adapters.ipfs.ipfsAdapter.globSource
-      // console.log('globSource: ', globSource)
+      const fileSizeInMegabytes = filePair.originalFile.fileSizeInMegabytes
+
       const path = `files/${filePair.originalFile.desiredFileName}`
 
-      const readableStream = fs.createReadStream(path)
+      const filename = filePair.originalFile.desiredFileName
+
+      const readableStream = this.fs.createReadStream(path)
 
       const fileObj = {
         path,
@@ -188,70 +174,138 @@ class FilePairMgmnt {
       }
       // console.log('fileObj: ', fileObj)
 
-      // if(filePair.useThumbnail) {
-      //   path = { path: `files/${filePair.thumbnailFile.desiredFileName}`}
-      //   fileObj = {
-      //     path,
-      //     content: globSource(path, { recursive: true})
-      //   }
-      // }
-
       const options = {
         cidVersion: 1,
         wrapWithDirectory: true
       }
 
-      // const hashes = []
-      // for await (const file of this.adapters.ipfs.ipfs.addAll(fileObj, options)) {
-      //   hashes.push(file.cid.toString())
-      // }
-      // console.log('hashes: ', hashes)
-      // const cid = hashes[0]
-
-      const fileData = await this.adapters.ipfs.ipfs.add(fileObj, options)
+      const fileData = await this.adapters.ipfs.ipfs.fs.addFile(fileObj, options)
       console.log('fileData: ', fileData)
 
-      const cid = fileData.cid.toString()
+      const cid = fileData.toString()
       console.log(`File added with CID: ${cid}`)
 
       const wif = filePair.originalFile.wif
 
       filePair.cid = cid
 
-      await this.pinCid({ cid, wif, filePair })
-    } catch (err) {
-      console.error('Error in addFileToIpfs(): ', err)
+      console.log(`Ready to write CID ${cid} to blockchain for pinning.`)
 
-      // Do not throw errors. This is a top-level function.
+      // await this.pinCid({ cid, wif, filePair })
+
+      // Generate a pin claim on the blockchain.
+      await this.createPinClaim({ cid, wif, filename, fileSizeInMegabytes })
+
+      return cid
+    } catch (err) {
+      console.error('Error in addFileToIpfs()')
+
+      throw err
     }
   }
 
-  // Pin the CID of the file with the P2WDB pinning cluster
-  async pinCid (inObj = {}) {
+  // Create a Pin Claim on the blockchain. This will cause ipfs-file-pin-service
+  // instances to download and pin the file.
+  async createPinClaim (inObj = {}) {
     try {
-      console.log('pinCid() inObj: ', inObj)
-      const { cid, wif, filePair } = inObj
+      const { cid, wif, filename, fileSizeInMegabytes } = inObj
 
-      console.log('wif: ', wif)
-      const bchWallet = new SlpWallet(wif, { interface: 'consumer-api' })
+      // Initialize the wallet
+      const bchWallet = new this.SlpWallet(wif, { interface: 'consumer-api' })
       await bchWallet.initialize()
 
-      const balance = await bchWallet.getBalance()
-      console.log('balance: ', balance)
-      console.log('walletInfo: ', bchWallet.walletInfo)
+      // Get the cost in PSF tokens to store 1MB
+      const writePrice = await this.adapters.writePrice.getMcWritePrice()
+      console.log('writePrice: ', writePrice)
 
-      const pin = new Pin({ bchWallet })
+      // Create a proof-of-burn (PoB) transaction
+      // const WRITE_PRICE = 0.08335233 // Cost in PSF tokens to pin 1MB
+      const PSF_TOKEN_ID = '38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0'
 
-      const outData = await pin.cid(cid)
-      console.log('outData: ', outData)
+      // Calculate the write cost
+      const dataCost = writePrice * fileSizeInMegabytes
+      const minCost = writePrice
+      let actualCost = minCost
+      if (dataCost > minCost) actualCost = dataCost
+      console.log(`Burning ${actualCost} PSF tokens for ${fileSizeInMegabytes} MB of data.`)
 
-      // Update the state to reflect that update has completed.
-      filePair.uploadComplete = true
-      filePair.p2wdbHash = outData
+      const pobTxid = await bchWallet.burnTokens(actualCost, PSF_TOKEN_ID)
+      console.log(`Proof-of-burn TX: ${pobTxid}`)
 
-      return outData
+      // Get info and libraries from the wallet.
+      const addr = bchWallet.walletInfo.address
+      const bchjs = bchWallet.bchjs
+
+      // Get a UTXO to spend to generate the pin claim TX.
+      let utxos = await bchWallet.getUtxos()
+      utxos = utxos.bchUtxos
+      const utxo = bchjs.Utxo.findBiggestUtxo(utxos)
+
+      // instance of transaction builder
+      const transactionBuilder = new bchjs.TransactionBuilder()
+
+      const originalAmount = utxo.value
+      const vout = utxo.tx_pos
+      const txid = utxo.tx_hash
+
+      // add input with txid and index of vout
+      transactionBuilder.addInput(txid, vout)
+
+      // TODO: Compute the 1 sat/byte fee.
+      const fee = 500
+
+      // BEGIN - Construction of OP_RETURN transaction.
+
+      // Add the OP_RETURN to the transaction.
+      const script = [
+        bchjs.Script.opcodes.OP_RETURN,
+        Buffer.from('00510000', 'hex'),
+        Buffer.from(pobTxid, 'hex'),
+        Buffer.from(cid),
+        Buffer.from(filename)
+      ]
+
+      // Compile the script array into a bitcoin-compliant hex encoded string.
+      const data = bchjs.Script.encode(script)
+
+      // Add the OP_RETURN output.
+      transactionBuilder.addOutput(data, 0)
+
+      // END - Construction of OP_RETURN transaction.
+
+      // Send the same amount - fee.
+      transactionBuilder.addOutput(addr, originalAmount - fee)
+
+      // Create an EC Key Pair from the user-supplied WIF.
+      const ecPair = bchjs.ECPair.fromWIF(wif)
+
+      // Sign the transaction with the HD node.
+      let redeemScript
+      transactionBuilder.sign(
+        0,
+        ecPair,
+        redeemScript,
+        transactionBuilder.hashTypes.SIGHASH_ALL,
+        originalAmount
+      )
+
+      // build tx
+      const tx = transactionBuilder.build()
+
+      // output rawhex
+      const hex = tx.toHex()
+      // console.log(`TX hex: ${hex}`);
+      // console.log(` `);
+
+      // Broadcast transation to the network
+      // const txidStr = await bchjs.RawTransactions.sendRawTransaction(hex)
+      const txidStr = await bchWallet.broadcast({ hex })
+      console.log(`Claim Transaction ID: ${txidStr}`)
+      console.log(`https://blockchair.com/bitcoin-cash/transaction/${txidStr}`)
+
+      return txidStr
     } catch (err) {
-      console.error('Error in pinCid()')
+      console.error('Error in file-pair-mgmnt.js/createPinClaim()')
       throw err
     }
   }
@@ -273,19 +327,19 @@ class FilePair {
     }
 
     // State
-    if (desiredFileName.includes('thumbnail')) {
-      this.thumbnailFile = inObj
-      this.thumbnailFile.isThubnail = true
+    // if (desiredFileName.includes('thumbnail')) {
+    //   this.thumbnailFile = inObj
+    //   this.thumbnailFile.isThubnail = true
+    //
+    //   this.thumbnailFile.isOver1MB = false
+    //   if (fileSizeInMegabytes > 1) this.thumbnailFile.isOver1MB = true
+    // } else {
+    this.originalFile = inObj
+    this.originalFile.isThumbnail = false
 
-      this.thumbnailFile.isOver1MB = false
-      if (fileSizeInMegabytes > 1) this.thumbnailFile.isOver1MB = true
-    } else {
-      this.originalFile = inObj
-      this.originalFile.isThumbnail = false
-
-      this.originalFile.isOver1MB = false
-      if (fileSizeInMegabytes > 1) this.originalFile.isOver1MB = true
-    }
+    this.originalFile.isOver1MB = false
+    if (fileSizeInMegabytes > 100) this.originalFile.isOver1MB = true
+    // }
 
     this.sn = sn
     this.useThumbnail = false
@@ -293,4 +347,4 @@ class FilePair {
   }
 }
 
-export default FilePairMgmnt
+export { FilePairMgmnt, FilePair }

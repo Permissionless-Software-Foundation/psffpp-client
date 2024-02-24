@@ -67,6 +67,7 @@ ipfsdata
 .ipfsdata
 data/
 files/
+run-dev.sh
 
 !README.md
 !file-pair-mgmnt.js

@@ -9,7 +9,6 @@
 
 // npm libraries
 import Koa from 'koa'
-
 import bodyParser from 'koa-bodyparser'
 import convert from 'koa-convert'
 import logger from 'koa-logger'
@@ -22,7 +21,6 @@ import cors from 'kcors'
 
 // Local libraries
 import config from '../config/index.js' // this first.
-
 import AdminLib from '../src/adapters/admin.js'
 import errorMiddleware from '../src/controllers/rest-api/middleware/error.js'
 import wlogger from '../src/adapters/wlogger.js'
