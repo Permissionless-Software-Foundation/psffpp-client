@@ -17,7 +17,7 @@
     "coverage:report": "export SVC_ENV=test && c8 --reporter=html mocha --exit --timeout 15000 --recursive test/unit/ test/e2e/automated/"
   },
   "author": "Chris Troutner <chris.troutner@gmail.com>",
-  "license": "MIT",
+  "license": "GPLV2",
   "apidoc": {
     "title": "psffpp-client",
     "url": "localhost:5000"
