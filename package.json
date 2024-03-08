@@ -1,7 +1,7 @@
 {
-  "name": "p2wdb-image-upload-backend",
+  "name": "psffpp-client",
   "version": "1.0.0",
-  "description": "The back end node.js server for uploading images to P2WDB IPFS pinning cluster.",
+  "description": "Koa REST API & Helia IPFS node for interacting with PSFFPP network",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -19,10 +19,10 @@
   "author": "Chris Troutner <chris.troutner@gmail.com>",
   "license": "MIT",
   "apidoc": {
-    "title": "p2wdb-image-upload-backend",
+    "title": "psffpp-client",
     "url": "localhost:5000"
   },
-  "repository": "Permissionless-Software-Foundation/p2wdb-image-upload-backend",
+  "repository": "Permissionless-Software-Foundation/psffpp-client",
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "11.0.1",
     "@chainsafe/libp2p-noise": "14.1.0",

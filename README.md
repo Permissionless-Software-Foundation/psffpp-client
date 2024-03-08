@@ -1,10 +1,12 @@
-# p2wdb-image-upload-backend
+# psffpp-client
 
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 ## Overview
 
-This is a node.js back end server that pairs with [this React front end](https://github.com/Permissionless-Software-Foundation/p2wdb-image-upload). Together, they allow a user to upload images to the IPFS network via the [P2WDB](https://p2wdb.com) pinning cluster, and pay for a year of hosting with BCH. The cost of hosting an image (up to 1MB) is $0.01 USD for a year.
+This is a node.js back end server that pairs with [this React front end](https://github.com/Permissionless-Software-Foundation/p2wdb-image-upload). Together, they allow a user to upload images to the IPFS network via the [PSFFPP](https://psffpp.com) pinning cluster, and pay for a year of hosting with cryptocurrency. The cost of hosting an image (up to 1MB) is $0.01 USD for a year.
+
+This is a [Koa](https://koajs.com/) back-end REST API service with an embedded [Helia IPFS node](https://github.com/ipfs/helia). It interacts with the [psf-bch-wallet](https://github.com/Permissionless-Software-Foundation/psf-bch-wallet) command-line app, to download file from and upload file to the PSF File Pinning Protocol network.
 
 This repository is forked from [ipfs-service-provider](https://github.com/Permissionless-Software-Foundation/ipfs-service-provider).
 
