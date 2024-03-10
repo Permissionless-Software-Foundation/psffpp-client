@@ -2,6 +2,11 @@
   REST API Controller library for the /ipfs route
 */
 
+// Global npm libraries
+import { exporter } from 'ipfs-unixfs-exporter'
+import fs from 'fs'
+
+// Local libraries
 import wlogger from '../../../adapters/wlogger.js'
 
 class IpfsRESTControllerLib {
@@ -124,12 +129,44 @@ class IpfsRESTControllerLib {
     }
   }
 
+  // Download a file from the PSF IPFS network.
   async downloadFile (ctx) {
     try {
-      const { cid } = ctx.params
+      const { cid, fileName, path } = ctx.request.body
 
-      const file = await this.adapters.ipfs.ipfs.blockstore.get(cid)
-      return file
+      console.log(`downloadFile() retrieving this CID: ${cid}, with fileName: ${fileName}, and path: ${path}`)
+
+      const blockstore = this.adapters.ipfs.ipfs.blockstore
+      const entry = await exporter(cid, blockstore)
+
+      console.info(entry.cid) // Qmqux
+      console.info(entry.path) // Qmbaz/foo/bar.txt
+      console.info(entry.name) // bar.txt
+      console.log('entry: ', entry)
+      // console.info(entry.unixfs.fileSize()) // 4
+
+      const filePath = `${path}/${fileName}`
+      const writableStream = fs.createWriteStream(filePath)
+
+      writableStream.on('error', (error) => {
+        console.log(`An error occured while writing to the file. Error: ${error.message}`)
+      })
+
+      writableStream.on('finish', () => {
+        console.log(`CID ${cid} downloaded to ${filePath}`)
+      })
+
+      for await (const buf of entry.content()) {
+        writableStream.write(buf)
+      }
+
+      writableStream.end()
+
+      ctx.body = {
+        success: true,
+        cid: cid,
+        size: Number(entry.size)
+      }
     } catch (err) {
       wlogger.error('Error in ipfs/controller.js/downloadFile(): ', err)
       this.handleError(ctx, err)
