@@ -164,7 +164,7 @@ class IpfsRESTControllerLib {
 
       ctx.body = {
         success: true,
-        cid: cid,
+        cid,
         size: Number(entry.size)
       }
     } catch (err) {
