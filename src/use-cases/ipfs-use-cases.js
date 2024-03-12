@@ -19,6 +19,10 @@ class IpfsUseCases {
       )
     }
 
+    // Encapsulate dependencies
+    this.exporter = exporter
+    this.fs = fs
+
     // Bind 'this' object to all class subfunctions.
     this.downloadCid = this.downloadCid.bind(this)
   }
@@ -30,16 +34,15 @@ class IpfsUseCases {
       console.log(`downloadFile() retrieving this CID: ${cid}, with fileName: ${fileName}, and path: ${path}`)
 
       const blockstore = this.adapters.ipfs.ipfs.blockstore
-      const entry = await exporter(cid, blockstore)
+      const entry = await this.exporter(cid, blockstore)
 
       console.info(entry.cid) // Qmqux
-      console.info(entry.path) // Qmbaz/foo/bar.txt
-      console.info(entry.name) // bar.txt
       console.log('entry: ', entry)
       // console.info(entry.unixfs.fileSize()) // 4
 
       const filePath = `${path}/${fileName}`
-      const writableStream = fs.createWriteStream(filePath)
+      console.log(`filePath: ${filePath}`)
+      const writableStream = this.fs.createWriteStream(filePath)
 
       writableStream.on('error', (error) => {
         console.log(`An error occured while writing to the file. Error: ${error.message}`)
