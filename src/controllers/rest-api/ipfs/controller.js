@@ -127,7 +127,6 @@ class IpfsRESTControllerLib {
   // Download a file from the PSF IPFS network.
   async downloadFile (ctx) {
     try {
-
       const result = await this.useCases.ipfs.downloadCid(ctx.request.body)
 
       ctx.body = {
