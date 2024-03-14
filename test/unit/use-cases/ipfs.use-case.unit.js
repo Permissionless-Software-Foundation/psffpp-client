@@ -46,10 +46,21 @@ describe('#users-use-case', () => {
 
   describe('#downloadCid', () => {
     it('should download a file given the CID and filename', async () => {
+      async function * asyncGenerator1 () {
+        yield Buffer.from('0x01', 'hex')
+        yield Buffer.from('0x02', 'hex')
+      }
+
       // Mock dependencies and force desired code path.
       sandbox.stub(uut, 'exporter').resolves({
         cid: 'bafkreic6glbvbcpiutupmaocbjjmbszlq4lmk2srapafpub7smuxfmp7yq',
-        content: [1, 2, 3, 4, 5]
+        content: asyncGenerator1,
+        size: 100
+      })
+      sandbox.stub(uut.fs, 'createWriteStream').returns({
+        on: () => {},
+        end: () => {},
+        write: () => {}
       })
 
       const inObj = {
@@ -59,9 +70,45 @@ describe('#users-use-case', () => {
       }
 
       const result = await uut.downloadCid(inObj)
-      console.log('result: ', result)
+      // console.log('result: ', result)
 
-      assert.equal(true, true)
+      assert.equal(result.cid, inObj.cid)
+      assert.equal(result.size, 100)
+    })
+
+    it('should catch, report, and throw errors', async () => {
+      try {
+        // Mock dependencies and force desired code path.
+        sandbox.stub(uut, 'exporter').rejects(new Error('test error'))
+
+        const inObj = {
+          cid: 'bafkreic6glbvbcpiutupmaocbjjmbszlq4lmk2srapafpub7smuxfmp7yq',
+          fileName: 'green-wizard.jpg',
+          path: '/home/trout/work/psf/code/psf-bch-wallet/src/commands/../../ipfs-files'
+        }
+
+        await uut.downloadCid(inObj)
+
+        assert.fail('Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'test error')
+      }
+    })
+  })
+
+  describe('#writeStreamError', () => {
+    it('should report errors', () => {
+      const result = uut.writeStreamError({ message: 'test error' })
+
+      assert.equal(result, true)
+    })
+  })
+
+  describe('#writeStreamFinished', () => {
+    it('should report when file has been downloaded', () => {
+      const result = uut.writeStreamFinished()
+
+      assert.equal(result, true)
     })
   })
 })

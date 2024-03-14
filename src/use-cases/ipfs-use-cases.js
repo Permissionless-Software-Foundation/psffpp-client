@@ -25,6 +25,8 @@ class IpfsUseCases {
 
     // Bind 'this' object to all class subfunctions.
     this.downloadCid = this.downloadCid.bind(this)
+    this.writeStreamError = this.writeStreamError.bind(this)
+    this.writeStreamFinished = this.writeStreamFinished.bind(this)
   }
 
   async downloadCid (inObj = {}) {
@@ -44,13 +46,9 @@ class IpfsUseCases {
       console.log(`filePath: ${filePath}`)
       const writableStream = this.fs.createWriteStream(filePath)
 
-      writableStream.on('error', (error) => {
-        console.log(`An error occured while writing to the file. Error: ${error.message}`)
-      })
+      writableStream.on('error', this.writeStreamError)
 
-      writableStream.on('finish', () => {
-        console.log(`CID ${cid} downloaded to ${filePath}`)
-      })
+      writableStream.on('finish', this.writeStreamFinished)
 
       for await (const buf of entry.content()) {
         writableStream.write(buf)
@@ -63,6 +61,18 @@ class IpfsUseCases {
       console.error('Error in ipfs-use-cases.js/downloadCid()')
       throw err
     }
+  }
+
+  writeStreamError (error) {
+    console.log(`An error occured while writing to the file. Error: ${error.message}`)
+
+    return true
+  }
+
+  writeStreamFinished () {
+    console.log('File has finished downloading.')
+
+    return true
   }
 }
 
