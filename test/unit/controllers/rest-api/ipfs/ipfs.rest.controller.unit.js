@@ -248,4 +248,41 @@ describe('#IPFS REST API', () => {
       assert.property(ctx.body, 'thisNode')
     })
   })
+
+  describe('#downloadFile', () => {
+    it('should return 422 status on biz logic error', async () => {
+      try {
+        // Force an error
+        sandbox.stub(uut.useCases.ipfs, 'downloadCid').rejects(new Error('test error'))
+
+        ctx.request.body = {}
+
+        await uut.downloadFile(ctx)
+
+        assert.fail('Unexpected result')
+      } catch (err) {
+        // console.log('err: ', err)
+        assert.equal(err.status, 422)
+        assert.include(err.message, 'test error')
+      }
+    })
+
+    it('should return 200 status on success', async () => {
+      // Mock dependencies
+      sandbox.stub(uut.useCases.ipfs, 'downloadCid').resolves({
+        cid: 'fake-cid',
+        size: 100
+      })
+
+      ctx.request.body = {}
+
+      await uut.downloadFile(ctx)
+
+      assert.property(ctx.body, 'success')
+      assert.property(ctx.body, 'cid')
+      assert.property(ctx.body, 'size')
+
+      assert.equal(ctx.body.success, true)
+    })
+  })
 })

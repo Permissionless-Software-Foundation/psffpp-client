@@ -31,12 +31,19 @@ class UserUseCaseMock {
   }
 }
 
+class IpfsUseCasesMock {
+  async downloadCid(inObj) {
+    return true
+  }
+}
+
 class UseCasesMock {
   constuctor(localConfig = {}) {
     // this.user = new UserUseCaseMock(localConfig)
   }
 
   user = new UserUseCaseMock()
+  ipfs = new IpfsUseCasesMock()
 }
 
 export default UseCasesMock;
