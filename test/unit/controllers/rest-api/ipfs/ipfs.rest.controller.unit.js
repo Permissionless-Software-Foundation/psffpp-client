@@ -285,4 +285,40 @@ describe('#IPFS REST API', () => {
       assert.equal(ctx.body.success, true)
     })
   })
+
+  describe('#uploadFile', () => {
+    it('should return 422 status on biz logic error', async () => {
+      try {
+        // Force an error
+        sandbox.stub(uut.useCases.ipfs, 'uploadFile').rejects(new Error('test error'))
+
+        ctx.request.body = {}
+
+        await uut.uploadFile(ctx)
+
+        assert.fail('Unexpected result')
+      } catch (err) {
+        // console.log('err: ', err)
+        assert.equal(err.status, 422)
+        assert.include(err.message, 'test error')
+      }
+    })
+
+    it('should return 200 status on success', async () => {
+      // Mock dependencies
+      sandbox.stub(uut.useCases.ipfs, 'uploadFile').resolves({
+        cid: 'fake-cid',
+        success: true
+      })
+
+      ctx.request.body = {}
+
+      await uut.uploadFile(ctx)
+
+      assert.property(ctx.body, 'success')
+      assert.property(ctx.body, 'cid')
+
+      assert.equal(ctx.body.success, true)
+    })
+  })
 })
