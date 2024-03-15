@@ -111,4 +111,22 @@ describe('#users-use-case', () => {
       assert.equal(result, true)
     })
   })
+
+  describe('#uploadFile', () => {
+    it('should upload a file and return the CID', async () => {
+      // Mock dependencies and force desired code path.
+      sandbox.stub(uut.fs, 'createReadStream').resolves()
+      sandbox.stub(uut.adapters.ipfs.ipfs.fs, 'addFile').resolves('fake-cid')
+
+      const inObj = {
+        fileName: 'fake-file.txt',
+        path: '/tmp'
+      }
+
+      const result = await uut.uploadFile(inObj)
+
+      assert.property(result, 'success')
+      assert.property(result, 'cid')
+    })
+  })
 })

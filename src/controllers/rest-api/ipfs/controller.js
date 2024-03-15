@@ -33,6 +33,7 @@ class IpfsRESTControllerLib {
     this.connect = this.connect.bind(this)
     this.getThisNode = this.getThisNode.bind(this)
     this.downloadFile = this.downloadFile.bind(this)
+    this.uploadFile = this.uploadFile.bind(this)
   }
 
   /**
@@ -136,6 +137,21 @@ class IpfsRESTControllerLib {
       }
     } catch (err) {
       wlogger.error('Error in ipfs/controller.js/downloadFile(): ', err)
+      this.handleError(ctx, err)
+    }
+  }
+
+  // Upload a file by adding the file to this IPFS node.
+  async uploadFile (ctx) {
+    try {
+      const result = await this.useCases.ipfs.uploadFile(ctx.request.body)
+
+      ctx.body = {
+        success: true,
+        cid: result.cid
+      }
+    } catch (err) {
+      wlogger.error('Error in ipfs/controller.js/uploadFile(): ', err)
       this.handleError(ctx, err)
     }
   }

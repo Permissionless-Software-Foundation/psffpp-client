@@ -35,6 +35,10 @@ class IpfsUseCasesMock {
   async downloadCid(inObj) {
     return true
   }
+
+  async uploadFile(inObj) {
+    return true
+  }
 }
 
 class UseCasesMock {

@@ -132,6 +132,8 @@ class IpfsAdapter {
       const blockstore = new FsBlockstore(`${IPFS_DIR}/blockstore`)
       const datastore = new FsDatastore(`${IPFS_DIR}/datastore`)
 
+      this.blockstore = blockstore
+
       // const keychainInit = {
       //   pass: await this.getSeed()
       // }

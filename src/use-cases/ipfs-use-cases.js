@@ -27,6 +27,7 @@ class IpfsUseCases {
     this.downloadCid = this.downloadCid.bind(this)
     this.writeStreamError = this.writeStreamError.bind(this)
     this.writeStreamFinished = this.writeStreamFinished.bind(this)
+    this.uploadFile = this.uploadFile.bind(this)
   }
 
   async downloadCid (inObj = {}) {
@@ -73,6 +74,43 @@ class IpfsUseCases {
     console.log('File has finished downloading.')
 
     return true
+  }
+
+  // Upload a file to IPFS.
+  async uploadFile (inObj = {}) {
+    try {
+      const { fileName, path } = inObj
+
+      console.log(`uploadFile() uploading file: ${fileName}, and path: ${path}`)
+
+      const filePath = `${path}/${fileName}`
+
+      const readableStream = this.fs.createReadStream(filePath)
+
+      const fileObj = {
+        path: filePath,
+        content: readableStream
+      }
+      // console.log('fileObj: ', fileObj)
+
+      const options = {
+        cidVersion: 1,
+        wrapWithDirectory: true
+      }
+
+      const fileData = await this.adapters.ipfs.ipfs.fs.addFile(fileObj, options)
+      console.log('fileData: ', fileData)
+
+      const cid = fileData.toString()
+
+      return {
+        success: true,
+        cid
+      }
+    } catch (err) {
+      console.error('Error in ipfs-use-cases.js/uploadFile()')
+      throw err
+    }
   }
 }
 
