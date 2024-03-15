@@ -27,7 +27,8 @@ class IpfsCoordAdapter {
         peer: {
           sendPrivateMessage: () => {}
         }
-      }
+      },
+      thisNode: {}
     }
   }
 }

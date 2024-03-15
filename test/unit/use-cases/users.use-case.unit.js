@@ -9,12 +9,10 @@ import { assert } from 'chai'
 import sinon from 'sinon'
 
 // Local support libraries
-// const testUtils = require('../../utils/test-utils')
+import adapters from '../mocks/adapters/index.js'
 
 // Unit under test (uut)
 import UserLib from '../../../src/use-cases/user.js'
-
-import adapters from '../mocks/adapters/index.js'
 
 describe('#users-use-case', () => {
   let uut
