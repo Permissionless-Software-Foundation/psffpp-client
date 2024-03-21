@@ -65,7 +65,7 @@
     "node-fetch": "npm:@achingbrain/node-fetch@2.6.7",
     "nodemailer": "6.7.5",
     "passport-local": "1.0.0",
-    "psf-multisig-approval": "2.0.3",
+    "psf-multisig-approval": "2.0.4",
     "public-ip": "6.0.1",
     "tus-node-server": "0.3.2",
     "winston": "3.3.3",
