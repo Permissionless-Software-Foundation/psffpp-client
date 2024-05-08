@@ -22,8 +22,6 @@ class IpfsRESTControllerLib {
     }
 
     // Encapsulate dependencies
-    // this.UserModel = this.adapters.localdb.Users
-    // this.userUseCases = this.useCases.user
 
     // Bind 'this' object to all subfunctions
     this.getStatus = this.getStatus.bind(this)
@@ -34,6 +32,7 @@ class IpfsRESTControllerLib {
     this.getThisNode = this.getThisNode.bind(this)
     this.downloadFile = this.downloadFile.bind(this)
     this.uploadFile = this.uploadFile.bind(this)
+    this.upload2 = this.upload2.bind(this)
   }
 
   /**
@@ -152,6 +151,21 @@ class IpfsRESTControllerLib {
       }
     } catch (err) {
       wlogger.error('Error in ipfs/controller.js/uploadFile(): ', err)
+      this.handleError(ctx, err)
+    }
+  }
+
+  // Upload a file via HTTP and add it to the IPFS node.
+  async upload2 (ctx) {
+    try {
+      const file = ctx.request.files.file
+      // console.log('file: ', file)
+
+      const result = await this.useCases.ipfs.upload2({ file })
+
+      ctx.body = result
+    } catch (err) {
+      wlogger.error('Error in ipfs/controller.js/upload2(): ', err)
       this.handleError(ctx, err)
     }
   }

@@ -58,6 +58,7 @@ class IpfsRouter {
     this.router.get('/node', this.ipfsRESTController.getThisNode)
     this.router.post('/download', this.ipfsRESTController.downloadFile)
     this.router.post('/upload', this.ipfsRESTController.uploadFile)
+    this.router.post('/upload2', this.ipfsRESTController.upload2)
 
     // Attach the Controller routes to the Koa app.
     app.use(this.router.routes())

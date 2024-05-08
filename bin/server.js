@@ -9,7 +9,7 @@
 
 // npm libraries
 import Koa from 'koa'
-import bodyParser from 'koa-bodyparser'
+// import bodyParser from 'koa-bodyparser'
 import convert from 'koa-convert'
 import logger from 'koa-logger'
 import mongoose from 'mongoose'
@@ -18,6 +18,10 @@ import passport from 'koa-passport'
 import mount from 'koa-mount'
 import serve from 'koa-static'
 import cors from 'kcors'
+// import koaRouter from "koa-router"
+import { koaBody } from 'koa-body'
+
+// console.log('koaBody: ', koaBody)
 
 // Local libraries
 import config from '../config/index.js' // this first.
@@ -60,7 +64,32 @@ class Server {
       // MIDDLEWARE START
 
       app.use(convert(logger()))
-      app.use(bodyParser())
+      // app.use(bodyParser())
+
+      // const router = new koaRouter();
+      // router.post("/upload", async ctx => {
+      //   const file = ctx.request.files.file;
+      //   console.log('file: ', file)
+      //
+      //   console.log('file.name: ', file.name)
+      //   console.log('file.path: ', file.path)
+      //   console.log('file.type: ', file.type)
+      //
+      //   // const { key, url } = await uploadFile({
+      //   //   fileName: file.name,
+      //   //   filePath: file.path,
+      //   //   fileType: file.type,
+      //   // });
+      //   // ctx.body = { key, url };
+      //
+      //   ctx.body = {
+      //     success: true
+      //   }
+      // });// We enable multipart body parsing
+      app.use(koaBody({ multipart: true }))
+      // app.use(router.routes());
+      // app.use(router.allowedMethods());
+
       app.use(session())
       app.use(errorMiddleware())
 

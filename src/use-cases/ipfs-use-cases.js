@@ -112,6 +112,40 @@ class IpfsUseCases {
       throw err
     }
   }
+
+  // Recieve a file via HTTP. Add it to the IPFS node.
+  async upload2 (inObj = {}) {
+    try {
+      const { file } = inObj
+
+      console.log('file: ', file)
+
+      const filename = file.originalFilename
+      const size = file.size
+      console.log(`File ${filename} with size ${size} bytes recieved.`)
+
+      const readStream = fs.createReadStream(file.filepath)
+      console.log('readStream: ', readStream)
+
+      const filePath = `./${filename}`
+      console.log(`filePath: ${filePath}`)
+      const writableStream = this.fs.createWriteStream(filePath)
+
+      readStream.pipe(writableStream)
+
+      readStream.on('close', () => {
+        console.log('File successfully uploaded.')
+        writableStream.end()
+      })
+
+      return {
+        success: true
+      }
+    } catch (err) {
+      console.error('Error in ipfs-use-cases.js/upload2()')
+      throw err
+    }
+  }
 }
 
 export default IpfsUseCases
