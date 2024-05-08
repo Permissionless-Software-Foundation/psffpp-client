@@ -99,6 +99,9 @@ class Server {
       // Mount the page for displaying logs.
       app.use(mount('/logs', serve(`${process.cwd()}/config/logs`)))
 
+      // Serve the front-end app for uploading files.
+      app.use(mount('/app', serve(`${process.cwd()}/public/app`)))
+
       // User Authentication
       // require('../config/passport')
       applyPassportMods(passport)

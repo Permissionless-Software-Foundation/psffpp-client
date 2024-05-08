@@ -127,7 +127,7 @@ class IpfsUseCases {
       const readStream = fs.createReadStream(file.filepath)
       console.log('readStream: ', readStream)
 
-      const filePath = `./${filename}`
+      const filePath = `${process.cwd()}/public/upload/${filename}`
       console.log(`filePath: ${filePath}`)
       const writableStream = this.fs.createWriteStream(filePath)
 
