@@ -68,6 +68,7 @@ ipfsdata
 data/
 files/
 run-dev.sh
+public/upload/
 
 !README.md
 !file-pair-mgmnt.js
