@@ -12,6 +12,10 @@
     <main>
         <h1>Welcome to My Website</h1>
         <input type="file" />
+
+        <div>
+          <p id="cidOut"></p>
+        </div>
     </main>
 	<script>
     // Select your file input
@@ -31,8 +35,13 @@
         method: "POST",
         body: data,
       });
-      const { url } = await response.json();
+      const result = await response.json();
+      console.log('result: ', result)
 
+      if(result.success) {
+        const p = document.querySelector('#cidOut')
+        p.innerText = `CID: ${result.cid}`
+      }
     };
   </script>
   </body>

@@ -117,29 +117,40 @@ class IpfsUseCases {
   async upload2 (inObj = {}) {
     try {
       const { file } = inObj
-
-      console.log('file: ', file)
+      // console.log('file: ', file)
 
       const filename = file.originalFilename
       const size = file.size
       console.log(`File ${filename} with size ${size} bytes recieved.`)
 
+      // Reject if file is bigger than 100 MB.
+      const maxFileSize = 100000000
+      if (size > maxFileSize) {
+        throw new Error(`File exceeds max file size of ${maxFileSize}`)
+      }
+
       const readStream = fs.createReadStream(file.filepath)
-      console.log('readStream: ', readStream)
+      // console.log('readStream: ', readStream)
 
-      const filePath = `${process.cwd()}/public/upload/${filename}`
-      console.log(`filePath: ${filePath}`)
-      const writableStream = this.fs.createWriteStream(filePath)
+      const fileObj = {
+        path: filename,
+        content: readStream
+      }
+      // console.log('fileObj: ', fileObj)
 
-      readStream.pipe(writableStream)
+      const options = {
+        cidVersion: 1,
+        wrapWithDirectory: true
+      }
 
-      readStream.on('close', () => {
-        console.log('File successfully uploaded.')
-        writableStream.end()
-      })
+      const fileData = await this.adapters.ipfs.ipfs.fs.addFile(fileObj, options)
+      console.log('fileData: ', fileData)
+
+      const cid = fileData.toString()
 
       return {
-        success: true
+        success: true,
+        cid
       }
     } catch (err) {
       console.error('Error in ipfs-use-cases.js/upload2()')
